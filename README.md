@@ -12,3 +12,18 @@ Creare una grafica bella.
 
 Successivamene si può pensare di implementare quuaclsao di più complesso, ma visto ceh è un progetto opensource, non ne vale la pena siccome non mi pagano. 
 
+Struttura Attuake:
+
+iFoundIT/
+├── public/
+│   ├── css/
+│   │   └── styles.css
+│   ├── js/
+│   │   └── scripts.js
+│   ├── index.html
+│   ├── publish.html
+│   └── search.html
+├── data/
+│   └── items.json
+├── server.js
+└── package.json
