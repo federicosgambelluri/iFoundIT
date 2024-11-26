@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>Cerca un oggetto - iFoundIT</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <header>
+    <h1>iFoundIT</h1>
+  </header>
+
+  <div class="container">
+    <h2>Cerca un oggetto smarrito</h2>
+    <div class="form-group">
+      <label for="search-location">Inserisci la tua posizione</label>
+      <input type="text" class="form-control" id="search-location" placeholder="Città, indirizzo, ecc.">
+    </div>
+    <button class="btn btn-primary" onclick="searchItems()">Cerca</button>
+    <hr>
+    <div id="items-container"></div>
+  </div>
+
+  <footer>
+    &copy; 2023 iFoundIT
+  </footer>
+
+  <script src="js/scripts.js"></script>
+  <script>
+    function searchItems() {
+      const location = document.getElementById('search-location').value;
+      fetch(`/api/items?location=${encodeURIComponent(location)}`)
+        .then(response => response.json())
+        .then(data => {
+          const container = document.getElementById('items-container');
+          container.innerHTML = '';
+          if (data.length === 0) {
+            container.innerHTML = '<p>Nessun oggetto trovato in questa posizione.</p>';
+          } else {
+            data.forEach(item => {
+              const card = document.createElement('div');
+              card.className = 'card item-card';
+              let imageSection = '';
+              if (item.image) {
+                imageSection = `<img src="${item.image}" class="card-img-top" alt="${item.title}">`;
+              }
+              card.innerHTML = `
+                ${imageSection}
+                <div class="card-body">
+                  <h5 class="card-title">${item.title}</h5>
+                  <p class="card-text">${item.description}</p>
+                  <p><strong>Luogo:</strong> ${item.location}</p>
+                  <p><strong>Contatto:</strong> ${item.contact || 'Non disponibile'}</p>
+                  <button class="btn btn-success" onclick="markAsFound(${item.id})">Segna come ritrovato</button>
+                </div>
+              `;
+              container.appendChild(card);
+            });
+          }
+        })
+        .catch(error => {
+          console.error('Errore:', error);
+        });
+    }
+
+    function markAsFound(id) {
+      fetch(`/api/items/${id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ found: true })
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert('Grazie per aver aggiornato lo stato dell\'oggetto!');
+        searchItems();
+      })
+      .catch(error => {
+        console.error('Errore:', error);
+      });
+    }
+  </script>
+</body>
+</html>
