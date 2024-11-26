@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <title>iFoundIT</title>
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <!-- Popup di buon senso -->
+  <div id="popup-overlay" class="popup-overlay">
+    <div class="popup">
+      <h2>Benvenuto su iFoundIT</h2>
+      <p>Per favore, utilizza questo servizio con buon senso. Aiutiamoci a ritrovare gli oggetti smarriti!</p>
+      <button class="btn btn-primary" onclick="hidePopup()">Ho capito</button>
+    </div>
+  </div>
+
+  <header>
+    <h1>iFoundIT</h1>
+    <p>Il sito WEB per cercare e trovare gli oggetti smarriti</p>
+  </header>
+
+  <div class="container">
+    <div class="main-buttons">
+      <button class="btn btn-success" onclick="window.location.href='publish.html'">Pubblica un oggetto trovato</button>
+      <button class="btn btn-info" onclick="window.location.href='search.html'">Cerca un oggetto smarrito</button>
+    </div>
+  </div>
+
+  <footer>
+    &copy; 2023 iFoundIT
+  </footer>
+
+  <script src="js/scripts.js"></script>
+</body>
+</html>
