@@ -1,0 +1,56 @@
+body {
+  padding-top: 60px;
+}
+
+header {
+  background-color: #007bff;
+  color: white;
+  padding: 20px 0;
+  text-align: center;
+}
+
+footer {
+  background-color: #f8f9fa;
+  color: #6c757d;
+  padding: 10px 0;
+  text-align: center;
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+}
+
+.main-buttons {
+  display: flex;
+  justify-content: center;
+  margin-top: 50px;
+}
+
+.main-buttons .btn {
+  width: 200px;
+  height: 100px;
+  margin: 20px;
+  font-size: 1.5rem;
+}
+
+.popup-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  display: none;
+}
+
+.popup {
+  background-color: white;
+  padding: 30px;
+  border-radius: 5px;
+  max-width: 500px;
+  margin: 100px auto;
+  text-align: center;
+}
+
+.item-card {
+  margin-bottom: 20px;
+}
