@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="utf-8"/>
+    <title>I Found It - Segnala un Oggetto Trovato</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com/" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700;900&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: { "primary": "#13a4ec", "background-light": "#f6f7f8", "background-dark": "#101c22" },
+                    fontFamily: { "display": ["Public Sans"] },
+                },
+            },
+        }
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCErbhsD8eF6NqB6egM694fzMFJcM2jvb8&libraries=places&callback=initMap"></script>
+    <style> #map { height: 250px; } </style>
+</head>
+
+<body class="bg-background-light dark:bg-background-dark font-display text-gray-800 dark:text-gray-200">
+<div class="flex flex-col min-h-screen">
+<header class="border-b border-gray-200 dark:border-gray-700/50">
+<div class="container mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center justify-between h-16">
+<div class="flex items-center gap-4">
+<a class="flex items-center gap-2 text-gray-900 dark:text-white" href="index.html">
+<span class="material-symbols-outlined text-primary text-3xl">travel_explore</span>
+<span class="text-xl font-bold">I Found It</span>
+</a>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-medium hover:text-primary" href="pubblica.html">Pubblica Oggetto Trovato</a>
+<a class="text-sm font-medium hover:text-primary" href="trova.html">Cerca Oggetto Smarrito</a>
+</nav>
+<div class="flex items-center gap-4">
+
+</div>
+</div>
+</div>
+</header>
+
+    <main class="flex-grow container mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="max-w-2xl mx-auto bg-white dark:bg-gray-800/20 rounded-xl shadow-lg p-6 sm:p-8">
+            <h2 class="text-3xl font-bold text-gray-900 dark:text-white mb-6">Segnala un Oggetto Ritrovato</h2>
+            <p class="text-gray-600 dark:text-gray-400 mb-8">Compila il modulo per aiutare qualcuno a ritrovare ciò che ha perso.</p>
+            
+            <form id="reportForm" class="space-y-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="titolo">Titolo dell'annuncio</label>
+                    <input class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900/50 focus:border-primary focus:ring-primary text-sm" id="titolo" name="titolo" placeholder="Es. Zaino nero trovato in stazione" type="text" required/>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="categoria">Categoria</label>
+                    <select id="categoria" name="categoria" class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900/50 focus:border-primary focus:ring-primary text-sm" required>
+                        <option value="">Seleziona una categoria...</option>
+                        <option value="elettronica">Elettronica</option>
+                        <option value="accessori">Accessori</option>
+                        <option value="documenti">Documenti</option>
+                        <option value="chiavi">Chiavi</option>
+                        <option value="abbigliamento">Abbigliamento</option>
+                        <option value="altro">Altro</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="descrizione">Descrizione</label>
+                    <textarea class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900/50 focus:border-primary focus:ring-primary text-sm" id="descrizione" name="descrizione" placeholder="Descrivi l'oggetto nel dettaglio..." rows="4" required></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="file-upload">Immagine (obbligatoria)</label>
+                    <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-gray-600 border-dashed rounded-lg bg-background-light dark:bg-background-dark">
+                        <div class="space-y-1 text-center">
+                            <span class="material-symbols-outlined text-4xl text-gray-400">add_a_photo</span>
+                            <div class="flex text-sm text-gray-600 dark:text-gray-400">
+                                <label class="relative cursor-pointer rounded font-medium text-primary" for="file-upload">
+                                    <span>Carica un file</span>
+                                    <input class="sr-only" id="file-upload" name="file-upload" type="file" accept="image/png, image/jpeg" required/>
+                                </label>
+                                <p class="pl-1">o trascinalo qui</p>
+                            </div>
+                            <p id="fileName" class="text-xs text-green-500"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Luogo del ritrovamento</label>
+                    <div class="flex flex-col sm:flex-row gap-2 mb-3">
+                        <input id="luogo-search" class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900/50 focus:border-primary focus:ring-primary text-sm" placeholder="Cerca un indirizzo..." type="text"/>
+                        <button type="button" id="getLocationBtn" class="flex-shrink-0 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-primary/10 dark:bg-primary/20 text-primary font-medium hover:bg-primary/20 dark:hover:bg-primary/30">
+                            <span class="material-symbols-outlined">my_location</span>
+                            <span>Posizione Attuale</span>
+                        </button>
+                    </div>
+                    <div id="map" class="h-64 w-full rounded-lg bg-gray-200 dark:bg-gray-700"></div>
+                    <input type="hidden" id="luogo" name="luogo" required/>
+                </div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="data-ritrovamento">Data del ritrovamento</label>
+        <input class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900/50 focus:border-primary focus:ring-primary text-sm" id="data-ritrovamento" name="data-ritrovamento" type="date" required/>
+    </div>
+    <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" for="contatto">Tuo Contatto</o>
+        <input class="w-full rounded-lg border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900/50 focus:border-primary focus:ring-primary text-sm" id="contatto" name="contatto" placeholder="Email o numero di telefono" type="text" required/>
+    </div>
+</div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    </div>
+
+                <div class="pt-4 flex justify-end">
+                    <button id="submitButton" class="w-full md:w-auto flex items-center justify-center gap-2 bg-primary text-white font-bold py-3 px-6 rounded-lg hover:bg-primary/90" type="submit">
+                        <span id="submitIcon" class="material-symbols-outlined">send</span>
+                        <span id="submitText">Pubblica Annuncio</span>
+                    </button>
+                </div>
+            </form>
+        </div>
+    </main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
+<script>
+    // --- Configurazione Appwrite ---
+    const APPWRITE_ENDPOINT = 'https://cloud.appwrite.io/v1';
+    const APPWRITE_PROJECT_ID = '68ea87510038cc95e2f6'; // <-- INSERISCI QUI
+    const APPWRITE_DATABASE_ID = '68ea879a000167149e28'; // <-- INSERISCI QUI
+    const OGGETTI_COLLECTION_ID = 'oggetti_ritrovati';
+    const IMMAGINI_BUCKET_ID = '68ea8839002bceff07d7';
+
+    const { Client, Databases, Storage, ID } = Appwrite;
+
+    const client = new Client().setEndpoint(APPWRITE_ENDPOINT).setProject(APPWRITE_PROJECT_ID);
+    const databases = new Databases(client);
+    const storage = new Storage(client);
+
+    // --- Riferimenti agli elementi del DOM ---
+    const form = document.getElementById('reportForm');
+    const submitButton = document.getElementById('submitButton');
+    const fileInput = document.getElementById('file-upload');
+    const hiddenLocationInput = document.getElementById('luogo'); // Campo nascosto per l'indirizzo
+    const searchInput = document.getElementById('luogo-search'); // Campo di ricerca indirizzo
+    const getLocationBtn = document.getElementById('getLocationBtn');
+
+    // --- Variabili Globali per la Mappa ---
+    let map;
+    let marker;
+    let geocoder;
+
+    // ======== LOGICA DELLA MAPPA ========
+    // ======== LOGICA DELLA MAPPA (VERSIONE CORRETTA) ========
+function initMap() {
+    const defaultLocation = { lat: 41.9027835, lng: 12.4963655 }; // Roma
+
+    map = new google.maps.Map(document.getElementById("map"), {
+        zoom: 12,
+        center: defaultLocation,
+        mapTypeControl: false,
+        streetViewControl: false,
+    });
+
+    marker = new google.maps.Marker({
+        map: map,
+        position: defaultLocation,
+        draggable: true,
+    });
+
+    geocoder = new google.maps.Geocoder();
+
+    // -- Funzionalità di Ricerca Indirizzo --
+    const autocomplete = new google.maps.places.Autocomplete(searchInput);
+    autocomplete.bindTo("bounds", map);
+    autocomplete.addListener("place_changed", () => {
+        const place = autocomplete.getPlace();
+        if (!place.geometry || !place.geometry.location) {
+            window.alert("Nessun dettaglio disponibile per: '" + place.name + "'");
+            return;
+        }
+        geocodeLatLng(place.geometry.location); // Passa direttamente l'oggetto LatLng
+    });
+
+    // -- Funzionalità di Click sulla Mappa --
+    map.addListener("click", (e) => {
+        geocodeLatLng(e.latLng);
+    });
+    
+    // -- Funzionalità di Drag del Marker --
+    marker.addListener('dragend', (e) => {
+        geocodeLatLng(e.latLng);
+    });
+
+    // -- Funzionalità Posizione Attuale (CODICE CORRETTO) --
+    getLocationBtn.addEventListener('click', () => {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    // Crea un oggetto google.maps.LatLng corretto
+                    const pos = new google.maps.LatLng(
+                        position.coords.latitude,
+                        position.coords.longitude
+                    );
+                    geocodeLatLng(pos); // Ora passiamo l'oggetto corretto
+                },
+                () => {
+                    alert("Errore: Il servizio di geolocalizzazione è fallito.");
+                }
+            );
+        } else {
+            alert("Errore: Il tuo browser non supporta la geolocalizzazione.");
+        }
+    });
+
+    // All'inizio, imposta il valore del campo nascosto con la posizione di default
+    geocodeLatLng(marker.getPosition());
+}
+
+    // Funzione per ottenere l'indirizzo dalle coordinate
+    function geocodeLatLng(latlng) {
+        geocoder.geocode({ location: latlng }, (results, status) => {
+            if (status === "OK") {
+                if (results[0]) {
+                    updateLocation(latlng, results[0].formatted_address);
+                } else {
+                    updateLocation(latlng, `Coordinate: ${latlng.lat()}, ${latlng.lng()}`);
+                }
+            } else {
+                console.error("Geocode fallito per questo motivo: " + status);
+                updateLocation(latlng, `Coordinate: ${latlng.lat()}, ${latlng.lng()}`);
+            }
+        });
+    }
+
+    // Funzione unica per aggiornare posizione e input
+    function updateLocation(location, address) {
+        map.setCenter(location);
+        marker.setPosition(location);
+        // Aggiorna sia il campo di ricerca visibile che quello nascosto
+        searchInput.value = address; 
+        hiddenLocationInput.value = address;
+    }
+
+    // ======== LOGICA DEL FORM (Appwrite) ========
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        if (!hiddenLocationInput.value) {
+            alert("Per favore, seleziona una posizione sulla mappa.");
+            return;
+        }
+
+        submitButton.disabled = true;
+        // ... (resto della logica di invio ad Appwrite)
+    });
+
+   form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    // Controlla se è stata selezionata una posizione
+    if (!hiddenLocationInput.value) {
+        alert("Per favore, seleziona una posizione sulla mappa prima di pubblicare.");
+        return;
+    }
+
+    // Feedback visivo per l'utente durante il caricamento
+    submitButton.disabled = true;
+    submitButton.querySelector('#submitText').textContent = 'Pubblicazione in corso...';
+    submitButton.querySelector('#submitIcon').textContent = 'hourglass_top';
+    
+    try {
+        const file = fileInput.files[0];
+        if (!file) {
+            throw new Error("Per favore, carica un'immagine. È obbligatoria.");
+        }
+
+        // --- 1. CARICA L'IMMAGINE NELLO STORAGE ---
+        // Appwrite genera un ID unico per il file e lo restituisce
+        const fileResponse = await storage.createFile(
+            IMMAGINI_BUCKET_ID,
+            ID.unique(), 
+            file
+        );
+        const immagineId = fileResponse.$id; // Questo è l'ID da salvare nel database
+
+        // --- 2. PREPARA I DATI PER IL DATABASE ---
+        // Raccoglie i dati dai campi del form
+        const payload = {
+            titolo: document.getElementById('titolo').value,
+            categoria: document.getElementById('categoria').value,
+            descrizione: document.getElementById('descrizione').value,
+            luogo: hiddenLocationInput.value, // Usa il valore dal campo nascosto aggiornato dalla mappa
+            dataRitrovamento: document.getElementById('data-ritrovamento').value,
+            contatto: document.getElementById('contatto').value,
+            immagineId: immagineId, // Associa l'ID dell'immagine al record del database
+        };
+
+        // --- 3. SALVA IL DOCUMENTO NEL DATABASE ---
+        await databases.createDocument(
+            APPWRITE_DATABASE_ID,
+            OGGETTI_COLLECTION_ID,
+            ID.unique(), // Appwrite genera un ID unico per il documento
+            payload
+        );
+
+        // --- 4. SUCCESSO ---
+        alert('Annuncio pubblicato con successo!');
+        form.reset();
+        document.getElementById('fileName').textContent = '';
+        // Opzionale: riporta la mappa alla posizione di default
+        initMap();
+
+    } catch (error) {
+        console.error('Errore durante la pubblicazione:', error);
+        alert(`Si è verificato un errore: ${error.message}`);
+    } finally {
+        // --- 5. RIPRISTINA IL PULSANTE ---
+        // Questa parte viene eseguita sia in caso di successo che di errore
+        submitButton.disabled = false;
+        submitButton.querySelector('#submitText').textContent = 'Pubblica Annuncio';
+        submitButton.querySelector('#submitIcon').textContent = 'send';
+    }
+});
+
+</script>
+</body>
+</html>
