@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>I Found It - Cerca un Oggetto</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com" rel="preconnect"/>
+    <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+    <link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet"/>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13a4ec",
+                        "background-light": "#f6f7f8",
+                        "background-dark": "#101c22",
+                    },
+                    fontFamily: { "display": ["Public Sans"] },
+                },
+            },
+        }
+    </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCErbhsD8eF6NqB6egM694fzMFJcM2jvb8&libraries=places&callback=initPage"></script>
+</head>
+<body class="bg-background-light dark:bg-background-dark font-display">
+<div class="flex flex-col h-screen">
+<header class="border-b border-gray-200 dark:border-gray-700/50">
+<div class="container mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center justify-between h-16">
+<div class="flex items-center gap-4">
+<a class="flex items-center gap-2 text-gray-900 dark:text-white" href="index.html">
+<span class="material-symbols-outlined text-primary text-3xl">travel_explore</span>
+<span class="text-xl font-bold">I Found It</span>
+</a>
+</div>
+<nav class="hidden md:flex items-center gap-8">
+<a class="text-sm font-medium hover:text-primary" href="pubblica.html">Pubblica Oggetto Trovato</a>
+<a class="text-sm font-medium hover:text-primary" href="trova.html">Cerca Oggetto Smarrito</a>
+</nav>
+<div class="flex items-center gap-4">
+
+</div>
+</div>
+</div>
+</header>
+    <main class="flex-1 w-full max-w-screen-2xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
+        
+        <div class="lg:col-span-2 rounded-xl overflow-hidden shadow-lg">
+            <div id="map" class="h-full w-full bg-gray-200 dark:bg-gray-700"></div>
+        </div>
+
+        <div class="lg:col-span-1 flex flex-col h-full min-h-0 bg-white dark:bg-background-dark/50 rounded-xl shadow-lg p-4">
+            <h2 class="text-xl font-bold text-background-dark dark:text-background-light mb-4">Oggetti Ritrovati di Recente</h2>
+            
+            <div class="flex flex-col sm:flex-row gap-4 mb-4">
+                <div class="relative flex-grow">
+                    <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-background-dark/50 dark:text-background-light/50">search</span>
+                    <input id="searchInput" class="w-full pl-10 pr-4 py-2 rounded-lg bg-background-light dark:bg-background-dark border border-primary/20 focus:ring-2 focus:ring-primary focus:outline-none" placeholder="Cerca per parola chiave..." type="text"/>
+                </div>
+                <select id="sortSelect" class="rounded-lg bg-background-light dark:bg-background-dark border border-primary/20 focus:ring-2 focus:ring-primary focus:outline-none">
+                    <option value="recenti">Più Recenti</option>
+                    <option value="vecchi">Meno Recenti</option>
+                </select>
+            </div>
+
+            <div id="itemList" class="flex-1 overflow-y-auto space-y-3 pr-2">
+                <p id="loadingMessage" class="text-center text-gray-500 py-10">Caricamento annunci...</p>
+            </div>
+        </div>
+
+    </main>
+</div>
+
+<div id="itemModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div id="modalContent" class="bg-white dark:bg-background-dark w-full max-w-2xl rounded-xl shadow-2xl flex flex-col max-h-[90vh]">
+        <div class="flex-shrink-0 flex justify-between items-center p-4 border-b border-gray-200 dark:border-gray-700">
+            <h3 id="modalTitle" class="text-xl font-bold text-gray-900 dark:text-white">Dettagli Oggetto</h3>
+            <button id="closeModalBtn" class="text-gray-400 hover:text-primary dark:hover:text-primary">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+
+        <div class="flex-1 overflow-y-auto p-6 space-y-4">
+            <img id="modalImage" src="" alt="Immagine dell'oggetto" class="w-full h-64 object-cover rounded-lg bg-gray-200 dark:bg-gray-700 mb-4">
+            
+            <div>
+                <h4 class="font-bold text-lg text-gray-800 dark:text-gray-100">Descrizione</h4>
+                <p id="modalDescription" class="text-gray-600 dark:text-gray-300 whitespace-pre-wrap"></p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                <div>
+                    <p class="text-sm font-bold text-gray-500 dark:text-gray-400">Categoria</p>
+                    <p id="modalCategory" class="text-gray-800 dark:text-gray-200"></p>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-gray-500 dark:text-gray-400">Data Ritrovamento</p>
+                    <p id="modalDate" class="text-gray-800 dark:text-gray-200"></p>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-gray-500 dark:text-gray-400">Luogo</p>
+                    <p id="modalLocation" class="text-gray-800 dark:text-gray-200"></p>
+                </div>
+                <div>
+                    <p class="text-sm font-bold text-gray-500 dark:text-gray-400">Contatto</p>
+                    <p id="modalContact" class="text-primary font-semibold"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/appwrite@13.0.0"></script>
+<script>
+    // --- Configurazione Appwrite ---
+    const APPWRITE_ENDPOINT = 'https://cloud.appwrite.io/v1';
+    const APPWRITE_PROJECT_ID = '68ea87510038cc95e2f6';
+    const APPWRITE_DATABASE_ID = '68ea879a000167149e28';
+    const OGGETTI_COLLECTION_ID = 'oggetti_ritrovati';
+    const IMMAGINI_BUCKET_ID = '68ea8839002bceff07d7';
+
+    const { Client, Databases, Storage, Query } = window.Appwrite;
+    const client = new Client().setEndpoint(APPWRITE_ENDPOINT).setProject(APPWRITE_PROJECT_ID);
+    const databases = new Databases(client);
+    const storage = new Storage(client);
+
+    // --- Riferimenti DOM ---
+    const itemListContainer = document.getElementById('itemList');
+    const searchInput = document.getElementById('searchInput');
+    const sortSelect = document.getElementById('sortSelect');
+    const loadingMessage = document.getElementById('loadingMessage');
+    const itemModal = document.getElementById('itemModal');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+
+    // --- Stato Globale ---
+    let allItems = [];
+    let map;
+    let geocoder;
+    let markers = [];
+
+    // ======== FUNZIONE PRINCIPALE ========
+
+
+    window.initPage = async function() {
+    initMap();
+    await fetchAndDisplayItems();
+    setupEventListeners();
+};
+
+
+    function initMap() {
+        map = new google.maps.Map(document.getElementById("map"), { zoom: 6, center: { lat: 41.9, lng: 12.5 }, mapTypeControl: false, streetViewControl: false });
+        geocoder = new google.maps.Geocoder();
+    }
+    
+    // NUOVA FUNZIONE: per organizzare gli event listener
+    function setupEventListeners() {
+        searchInput.addEventListener('input', filterAndRender);
+        sortSelect.addEventListener('change', filterAndRender);
+        closeModalBtn.addEventListener('click', closeItemDetailsModal);
+        itemModal.addEventListener('click', (e) => {
+            if (e.target.id === 'itemModal') {
+                closeItemDetailsModal();
+            }
+        });
+    }
+
+    // ======== LOGICA DATI E VISUALIZZAZIONE ========
+    async function fetchAndDisplayItems() {
+        try {
+            const response = await databases.listDocuments(APPWRITE_DATABASE_ID, OGGETTI_COLLECTION_ID, [Query.orderDesc("$createdAt")]);
+            allItems = response.documents;
+            loadingMessage.style.display = 'none';
+            renderList(allItems);
+            placeMarkersOnMap(allItems);
+        } catch (error) {
+            console.error("Errore nel recupero annunci:", error);
+            loadingMessage.textContent = "Impossibile caricare gli annunci.";
+        }
+    }
+    
+function renderList(items) {
+    itemListContainer.innerHTML = items.length === 0
+        ? '<p class="text-center text-gray-500 py-10">Nessun risultato.</p>'
+        : '';
+
+    items.forEach(item => {
+        // 🔒 Gestione sicura ID immagine
+        const imageId = item.immagineId?.$id || item.immagineId || null;
+        let imageUrl = "https://via.placeholder.com/200?text=Nessuna+Immagine";
+
+        // 🔗 Se esiste un ID valido, genera l’URL di preview
+      if (item.immagineUrl) {
+    // Se nel DB hai già salvato l’URL completo
+    imageUrl = item.immagineUrl;
+} else if (imageId) {
+    // Altrimenti costruisci l’URL pubblico .view dinamicamente
+    imageUrl = `https://fra.cloud.appwrite.io/v1/storage/buckets/${IMMAGINI_BUCKET_ID}/files/${imageId}/view?project=${APPWRITE_PROJECT_ID}`;
+}
+
+        // 🧱 Crea la card
+        const itemCard = `
+            <div class="item-card flex items-start gap-4 p-3 rounded-lg bg-white dark:bg-background-dark/80 border border-primary/10 cursor-pointer hover:shadow-md hover:border-primary/30 transition" data-id="${item.$id}">
+                <img src="${imageUrl}" alt="${item.titolo}" class="w-20 h-20 bg-gray-200 object-cover rounded-lg flex-shrink-0">
+                <div class="overflow-hidden">
+                    <p class="font-bold truncate">${item.titolo}</p>
+                    <p class="text-sm truncate">
+                        <span class="material-symbols-outlined text-xs align-middle">location_on</span> ${item.luogo}
+                    </p>
+                    <p class="text-xs">${new Date(item.dataRitrovamento).toLocaleDateString('it-IT')}</p>
+                </div>
+            </div>`;
+
+        itemListContainer.insertAdjacentHTML('beforeend', itemCard);
+    });
+
+    // 🧭 Click sulle card per aprire la modale
+    document.querySelectorAll('.item-card').forEach(card => {
+        card.addEventListener('click', () => showItemDetailsModal(card.dataset.id));
+    });
+}
+    function filterAndRender() {
+        const searchTerm = searchInput.value.toLowerCase();
+        let filteredItems = allItems.filter(item => 
+            item.titolo.toLowerCase().includes(searchTerm) ||
+            item.descrizione.toLowerCase().includes(searchTerm) ||
+            item.luogo.toLowerCase().includes(searchTerm)
+        );
+        const sortBy = sortSelect.value;
+        filteredItems.sort((a, b) => sortBy === 'recenti' ? new Date(b.dataRitrovamento) - new Date(a.dataRitrovamento) : new Date(a.dataRitrovamento) - new Date(b.dataRitrovamento));
+        renderList(filteredItems);
+    }
+    
+    // ======== LOGICA MAPPA E MARKER ========
+    function placeMarkersOnMap(items) {
+        markers.forEach(m => m.marker.setMap(null));
+        markers = [];
+        items.forEach((item, index) => {
+            setTimeout(() => {
+                geocoder.geocode({ 'address': item.luogo }, (results, status) => {
+                    if (status === 'OK' && results[0]) {
+                        const marker = new google.maps.Marker({ map: map, position: results[0].geometry.location, title: item.titolo, animation: google.maps.Animation.DROP });
+                        
+                        // CORREZIONE 2: Il click sul marker ora apre la modale
+                        marker.addListener('click', () => {
+                            showItemDetailsModal(item.$id);
+                        });
+
+                        markers.push({ itemId: item.$id, marker: marker, title: item.titolo });
+                    } else {
+                        console.warn(`Geocode non riuscito per "${item.luogo}": ${status}`);
+                    }
+                });
+            }, index * 100);
+        });
+    }
+
+    // ======== FUNZIONI PER LA MODALE ========
+    function showItemDetailsModal(itemId) {
+        const item = allItems.find(i => i.$id === itemId);
+        if (!item) return;
+
+        document.getElementById('modalTitle').textContent = item.titolo;
+        document.getElementById('modalDescription').textContent = item.descrizione;
+        document.getElementById('modalCategory').textContent = item.categoria.charAt(0).toUpperCase() + item.categoria.slice(1);
+        document.getElementById('modalDate').textContent = new Date(item.dataRitrovamento).toLocaleDateString('it-IT', { year: 'numeric', month: 'long', day: 'numeric' });
+        document.getElementById('modalLocation').textContent = item.luogo;
+        document.getElementById('modalContact').textContent = item.contatto;
+        
+const imageId = item.immagineId?.$id || item.immagineId;
+let imageUrl = "https://via.placeholder.com/800x600?text=Nessuna+Immagine";
+
+// Se il DB contiene l’URL completo
+if (item.immagineUrl) {
+    imageUrl = item.immagineUrl;
+} 
+// Altrimenti costruisci l’URL .view da ID
+else if (imageId) {
+    imageUrl = `https://fra.cloud.appwrite.io/v1/storage/buckets/${IMMAGINI_BUCKET_ID}/files/${imageId}/view?project=${APPWRITE_PROJECT_ID}`;
+}
+
+document.getElementById('modalImage').src = imageUrl;
+        document.getElementById('modalImage').src = imageUrl;
+
+        
+
+        const targetMarker = markers.find(m => m.itemId === itemId);
+        if (targetMarker) {
+            map.setCenter(targetMarker.marker.getPosition());
+            map.setZoom(15);
+        }
+
+        itemModal.classList.remove('hidden');
+    }
+
+    function closeItemDetailsModal() {
+        itemModal.classList.add('hidden');
+    }
+</script>
+
+</body>
+</html>
